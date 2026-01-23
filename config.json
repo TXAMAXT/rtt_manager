@@ -14,9 +14,9 @@
         {
             "name": "STM32F4_CCM",
             "target": "target/stm32f4x.cfg",
-            "ram_start": "0x10000000",
-            "ram_end": "0x10010000",
-            "clock": "5000" 
+            "ram_start": "0x20000000", 
+            "ram_end": "0x20020000",
+            "clock": "20000" 
         },
         {
             "name": "STM32F103_LowSpeed",

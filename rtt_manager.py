@@ -66,13 +66,14 @@ class RTTManager:
 
             # 3. 构造指令
             cmd = [
-                "openocd", "-f", if_cfg, 
-                "-c", f"adapter speed {swd_clock}", 
+                "openocd", "-f", if_cfg,  
                 "-c", "set CPUTAPID 0", 
                 "-f", chip['target'],
+                "-c", f"adapter speed {swd_clock}", 
                 "-c", "init",
-                "-c", f"$_TARGETNAME rtt setup {start_addr} {hex(scan_size)} 'SEGGER RTT'",
-                "-c", "$_TARGETNAME rtt start",
+                "-c", f"rtt setup {start_addr} {hex(scan_size)} \"SEGGER RTT\"",
+                "-c", "rtt polling_interval 10",
+                "-c", "rtt start",
                 "-c", "rtt server start 60001 0"
             ]
 
