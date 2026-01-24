@@ -62,7 +62,20 @@ class RTTManager:
             start_addr = chip['ram_start']
             end_addr = int(chip['ram_end'], 16)
             scan_size = end_addr - int(start_addr, 16)
-            swd_clock = chip.get('clock', '2000') 
+            swd_clock = int(chip.get('clock', '2000'))
+            
+            # 获取缓冲区大小，默认给 1024 字节
+            buf_size = int(chip.get('rtt_ram_size', '1024'))
+            
+            # 算法逻辑：
+            # 1. 计算排空缓冲区所需时间 (ms) = (位宽 / 速率) / 效率
+            # 2. 轮询间隔应小于排空时间的一半以保证安全
+            # 3. 效率因子取 0.6 (SWD 开销)
+            calc_interval = (buf_size * 8) / (swd_clock * 0.6) * 0.5
+            
+            # 约束区间：最低 2ms (保护 CPU)，最高 50ms (保证波形流畅)
+            final_polling = max(2, min(50, int(calc_interval)))
+            # ---------------------------------------
 
             # 3. 构造指令
             cmd = [
@@ -72,12 +85,19 @@ class RTTManager:
                 "-c", f"adapter speed {swd_clock}", 
                 "-c", "init",
                 "-c", f"rtt setup {start_addr} {hex(scan_size)} \"SEGGER RTT\"",
-                "-c", "rtt polling_interval 10",
+                "-c", f"rtt polling_interval {final_polling}",
                 "-c", "rtt start",
-                "-c", "rtt server start 60001 0"
+                "-c", "rtt server start 60001 1"
             ]
-
+            
             self.log_text.delete(1.0, tk.END)
+            # 在日志首行静默告知计算结果
+            from datetime import datetime
+            start_time = datetime.now().strftime("%H:%M:%S")
+            log_msg = f"[{start_time}] >>> 自动策略: SWD {swd_clock}K, Buf {buf_size}B -> Polling {final_polling}ms\n"
+            self.log_text.insert(tk.END, log_msg)
+            self.log_text.insert(tk.END, "-"*60 + "\n")
+
             self.process = subprocess.Popen(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
                 text=True, creationflags=subprocess.CREATE_NO_WINDOW
@@ -85,7 +105,7 @@ class RTTManager:
             threading.Thread(target=self.monitor, daemon=True).start()
             self.btn_start.config(text="停止服务", bg="#f44336")
         else:
-            # --- 核心修改部分：停止逻辑 ---
+            # --- 停止逻辑 ---
             if self.process:
                 self.process.terminate()
                 self.process = None
