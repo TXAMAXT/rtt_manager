@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import json, subprocess, threading, os
+import json, subprocess, threading, os, sys
 
 class RTTManager:
     def __init__(self, root):
@@ -11,7 +11,15 @@ class RTTManager:
         w, h = 400, 350
         self.root.geometry(f"{w}x{h}+{int((self.root.winfo_screenwidth()-w)/2)}+{int((self.root.winfo_screenheight()-h)/2)}")
         
-        self.config_file = 'config.json'
+        # 获取config.json的完整路径 (同一目录下)
+        if getattr(sys, 'frozen', False):
+            # 打包后的EXE环境
+            self.base_dir = os.path.dirname(sys.executable)
+        else:
+            # 开发环境
+            self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        self.config_file = os.path.join(self.base_dir, 'config.json')
         self.process = None
         self.config = self.load_config()
 
