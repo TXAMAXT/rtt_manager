@@ -74,7 +74,10 @@ class RTTManager:
             
             # 获取缓冲区大小，默认给 1024 字节
             buf_size = int(chip.get('rtt_ram_size', '1024'))
-            
+
+            #获取缓冲区通道
+            channel = int(chip.get('channel', '0'))
+
             # 算法逻辑：
             # 1. 计算排空缓冲区所需时间 (ms) = (位宽 / 速率) / 效率
             # 2. 轮询间隔应小于排空时间的一半以保证安全
@@ -95,7 +98,7 @@ class RTTManager:
                 "-c", f"rtt setup {start_addr} {hex(scan_size)} \"SEGGER RTT\"",
                 "-c", f"rtt polling_interval {final_polling}",
                 "-c", "rtt start",
-                "-c", "rtt server start 60001 1"
+                "-c", f"rtt server start 60001 {channel}"
             ]
             
             self.log_text.delete(1.0, tk.END)
