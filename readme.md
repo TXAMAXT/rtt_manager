@@ -84,7 +84,8 @@ python build_exe.py
             "ram_start": "0x20000000",
             "ram_end": "0x20020000",
             "clock": "2000",
-            "rtt_ram_size": "1024"
+            "rtt_ram_size": "1024"，
+            "channel": "1"
         }
     ]
 }
@@ -100,6 +101,7 @@ python build_exe.py
 | `ram_end` | RTT控制块 RAM 结束地址 |
 | `clock` | 时钟频率（单位：kHz） |
 | `rtt_ram_size` | RTT 缓冲区大小 |
+| `channel` | RTT通道选择(默认通道0，如果使用ccmram加速则使用通道1) |
 
 ## 使用流程
 
