@@ -110,6 +110,7 @@ python build_exe.py
 3. 选择目标芯片（如 STM32F4xx）
 4. 点击"启动服务"按钮
 5. 查看日志窗口了解服务状态
+6. 如何移植RTT到工程且如何使用RTT点击查看我的 [另一个项目](https://github.com/TXAMAXT/vofatest)
 
 ## 开发说明
 
